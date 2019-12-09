@@ -1,2 +1,2 @@
 # aswFront
-Aplicacó frontEnd per al projecte de ASW
+Aplicació frontEnd per al projecte de ASW
