@@ -1,10 +1,15 @@
 <template>
-    <p>Holaaaaaaaaaa</p>
+    <div>
+        <NavBar></NavBar>
+        <p>Holaaaaaaaaaa</p>
+    </div>
 </template>
 
-<script lang="ts">
+<script>
+import NavBar from './verticalNavBar/NavBar.vue'
 export default {
-    name: 'Home'
+    name: 'Home',
+    components: {NavBar}
 }
 </script>
 
