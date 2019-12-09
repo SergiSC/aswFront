@@ -1,8 +1,8 @@
 <template>
-    
+    <p>holaaa</p>
 </template>
 
-<script lang="ts">
+<script>
 export default {
     name: 'LogIn'
 }
