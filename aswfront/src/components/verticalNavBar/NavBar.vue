@@ -1,21 +1,41 @@
 <template>
     <div class="vetical-navbar">
-        <img class="img-navbar" src="https://icon-library.net/images/bitbucket-icon/bitbucket-icon-8.jpg">
-        <div class="background-img">
-            <img class="img-navbar-home" src="../../assets/house.png" >
+        <div class="mx-auto">
+            <img class="img-navbar" src="https://icon-library.net/images/bitbucket-icon/bitbucket-icon-8.jpg">
         </div>
-        <div class="background-img">
-            <img class="img-navbar-home" src="../../assets/list.png" >
+        <div v-if="actualPage!='home'" class="mx-auto background-img">
+            <a href="/home">
+                <img class="img-navbar-home" src="../../assets/house.png" >
+            </a>
         </div>
-        <div class="background-logout-img">
-            <img class="img-navbar-home" src="../../assets/list.png" >
+        <div v-if="actualPage!='issues'" class="mx-auto background-img">
+            <a href="/issues">
+                <img class="img-navbar-home" src="../../assets/list.png" >
+            </a>
+        </div>
+        <div class="mx-auto background-img logout-img">
+            <button class="bton-logout">
+                <img class="img-navbar-logout" src="../../assets/logout.png" >
+            </button>
         </div>
     </div>
 </template>
 
 <script>
 export default {
-    name: "NavBar"
+    name: "NavBar",
+    data: function() {
+        return {
+            actualPage: String
+        }
+    },
+
+    mounted: function() {
+        this.actualPage = this.$route.fullPath.split('/')[1]
+    },
+    methods: {
+    }
+
 }
 </script>
 
@@ -33,8 +53,13 @@ export default {
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    margin: 50px auto 0 auto;
+    margin: 30px auto 0 auto;
     z-index: 1;
+}
+.logout-img {
+    position: absolute;
+    bottom: 50px;
+    margin-left: 10px;
 }
 .img-navbar {
     width: 50px;
@@ -47,14 +72,21 @@ export default {
     height: 20px;    
     margin-top: 15px;
 }
-.background-logout-img {
-    background-color: white;
-    position: absolute;
-    margin: auto;
-    border-radius: 50%;
+.bton-logout {
+    background: none;
+    border: none;
     width: 50px;
     height: 50px;
-    bottom: 50px;
-    z-index: 1;
+    cursor: pointer;
+    border-radius: 50%;
+}
+.bton-logout:focus {
+    outline: none;
+}
+
+.img-navbar-logout {
+    position: relative;
+    width: 20px;
+    height: 20px;    
 }
 </style>
