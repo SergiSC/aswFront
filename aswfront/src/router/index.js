@@ -3,7 +3,7 @@ import VueRouter from "vue-router";
 import LogIn from "../components/LogIn.vue";
 import Home from '../components/Home.vue';
 import ListIssues from '../components/listIssues/ListIssues.vue';
-import AllIssues from '../components/listIssues/All.vue';
+//import AllIssues from '../components/listIssues/All.vue';
 import MyIssues from '../components/listIssues/Mine.vue';
 import OpenIssues from '../components/listIssues/Open.vue';
 import WatchingIssues from '../components/listIssues/Watching.vue';
@@ -31,30 +31,29 @@ const router = new VueRouter({
             redirect: "/issues/all",
             children: [
                 {
-                    path: "/all",
-                    name: "All issues",
-                    component: AllIssues
+                    path: "all",
+                    name: "AllIssues"
                 },
                 {
-                    path: "/open",
-                    name: "Open issues",
+                    path: "open",
+                    name: "OpenIssues",
                     component: OpenIssues
                 },
                 {
-                    path: "/mine",
-                    name: "My issues",
+                    path: "mine",
+                    name: "MyIssues",
                     component: MyIssues
                 },
                 {
-                    path: "/watching",
-                    name: "Watching issues",
+                    path: "watching",
+                    name: "WatchingIssues",
                     component: WatchingIssues
                 }
             ]
         },
         {
-            path: "/issues/:id",
-            name: "Issues Details",
+            path: "/issue/:id",
+            name: "Issue Details",
             component: Details,
         },
         {

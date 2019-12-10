@@ -59,7 +59,7 @@ export default {
 .logout-img {
     position: absolute;
     bottom: 50px;
-    margin-left: 10px;
+    margin-left: 10px !important;
 }
 .img-navbar {
     width: 50px;
