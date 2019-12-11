@@ -13,10 +13,10 @@
             <p class="my-auto mr-2">Filter by:</p>
             <div>
                 <b-nav pills>
-                    <b-nav-item active class="mx-1 nav-item" href="all">All</b-nav-item>
-                    <b-nav-item class="mx-1" href="open">Open</b-nav-item>
-                    <b-nav-item class="mx-1" href="mine">My issues</b-nav-item>
-                    <b-nav-item class="mx-1" href="watching">Watching</b-nav-item>
+                    <b-nav-item to="all" exact exact-active-class="active" class="mx-1 nav-item">All</b-nav-item>
+                    <b-nav-item to="open" exact exact-active-class="active" class="mx-1" >Open</b-nav-item>
+                    <b-nav-item to="mine" exact exact-active-class="active" class="mx-1">My issues</b-nav-item>
+                    <b-nav-item to="watching" exact exact-active-class="active" class="mx-1">Watching</b-nav-item>
                 </b-nav>
             </div>
         </b-row>
@@ -40,7 +40,6 @@ export default {
         }
     },
     methods: {
-        
         deletecomment: function() {
             api.deleteIssueCommentById(15,79,"ea83ec557b21f0dc385c553edb8717ef8252e100").then(
                 
