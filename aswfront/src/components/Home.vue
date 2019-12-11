@@ -70,6 +70,7 @@ export default {
 <style scoped>
 .layout {
     margin-left: 70px;
+    margin-bottom: 50px;
     overflow: hidden;
 }
 .jumbo-home {

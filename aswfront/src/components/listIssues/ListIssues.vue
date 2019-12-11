@@ -20,19 +20,41 @@
                 </b-nav>
             </div>
         </b-row>
+        <b-button @click="getIssues()"> get</b-button>
+        <b-button @click="postIssue()"> post</b-button>
     </div>
 </template>
 
 <script>
 import NavBar from '../verticalNavBar/NavBar.vue'
+import api from '../../services/apiService.js'
 export default {
     name: 'ListIssues',
     components: {NavBar},
     data: function() {
         return {
+            list: [],
+            newIssue: {}
         }
     },
     methods: {
+        getIssues: function() {
+            api.getIssues('mine', 'id', 'ea83ec557b21f0dc385c553edb8717ef8252e100').then(response => {
+                this.list = response
+            })
+        },
+        postIssue: function() {
+            const body = {
+                title: "issue number 34",
+                description: "lorem ipsum",
+                kind: "B",
+                priority: "TR",
+                assignee: null
+            }
+            api.postIssue(body, 'ea83ec557b21f0dc385c553edb8717ef8252e100').then(response => {
+                this.newIssue = response
+            })
+        }
     }
 }
 </script>
