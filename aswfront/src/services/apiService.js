@@ -50,10 +50,10 @@ async function postIssue(body, token) {
     return result
 }
 
-async function putVoteIssue(issueId, token) {
+async function putVoteIssue(issueId, body, token) {
     let result = {}
     await axios
-        .put(baseUrl + 'issues/' + issueId + '/vote', {
+        .put(baseUrl + 'issues/' + issueId + '/vote', body, {
             headers: {
                 Authorization: 'Token ' + token
             }
@@ -64,10 +64,10 @@ async function putVoteIssue(issueId, token) {
     return result
 }
 
-async function putUnvoteIssue(issueId, token) {
+async function putUnvoteIssue(issueId, body, token) {
     let result = {}
     await axios
-        .put(baseUrl + 'issues/' + issueId + '/unVote', {
+        .put(baseUrl + 'issues/' + issueId + '/unVote', body, {
             headers: {
                 Authorization: 'Token ' + token
             }
@@ -78,10 +78,10 @@ async function putUnvoteIssue(issueId, token) {
     return result
 }
 
-async function putWatchIssue(issueId, token) {
+async function putWatchIssue(issueId, body, token) {
     let result = {}
     await axios
-        .put(baseUrl + 'issues/' + issueId + '/watch', {
+        .put(baseUrl + 'issues/' + issueId + '/watch', body, {
             headers: {
                 Authorization: 'Token ' + token
             }
@@ -92,10 +92,10 @@ async function putWatchIssue(issueId, token) {
     return result
 }
 
-async function putUnwatchIssue(issueId, token) {
+async function putUnwatchIssue(issueId, body, token) {
     let result = {}
     await axios
-        .put(baseUrl + 'issues/' + issueId + '/unWatch', {
+        .put(baseUrl + 'issues/' + issueId + '/unWatch', body, {
             headers: {
                 Authorization: 'Token ' + token
             }
@@ -152,7 +152,7 @@ async function deleteIssueById(issueId, token) {
 async function getIssueComments(issueId, token) {
     let result = []
     await axios.
-        get(baseUrl + 'issues/' + issueId + '/comments', {
+        get(baseUrl + 'issues/' + issueId + '/comments/', {
             headers: {
                 Authorization: 'Token ' + token
             }
@@ -166,7 +166,7 @@ async function getIssueComments(issueId, token) {
 async function postIssueComment(issueId, body, token) {
     let result = {}
     await axios
-        .post(baseUrl + 'issues/' + issueId + '/comments', body, {
+        .post(baseUrl + 'issues/' + issueId + '/comments/', body, {
             headers: {
                 Authorization: 'Token ' + token
             }
