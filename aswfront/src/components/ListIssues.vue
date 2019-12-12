@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import NavBar from '../verticalNavBar/NavBar.vue'
-import api from '../../services/apiService.js'
+import NavBar from './verticalNavBar/NavBar.vue'
+import api from '../services/apiService.js'
 export default {
     name: 'ListIssues',
     components: {NavBar},
