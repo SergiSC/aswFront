@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import LogIn from "../components/LogIn.vue";
 import Home from '../components/Home.vue';
-import ListIssues from '../components/listIssues/ListIssues.vue';
+import ListIssues from '../components/ListIssues.vue';
 import Details from '../components/Details.vue';
 import CreateEdit from '../components/CreateEdit.vue';
 
@@ -45,7 +45,7 @@ const router = new VueRouter({
             ]
         },
         {
-            path: "/issue/:id",
+            path: "/issues/:id",
             name: "Issue Details",
             component: Details,
         },
