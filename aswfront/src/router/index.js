@@ -3,10 +3,6 @@ import VueRouter from "vue-router";
 import LogIn from "../components/LogIn.vue";
 import Home from '../components/Home.vue';
 import ListIssues from '../components/listIssues/ListIssues.vue';
-//import AllIssues from '../components/listIssues/All.vue';
-import MyIssues from '../components/listIssues/Mine.vue';
-import OpenIssues from '../components/listIssues/Open.vue';
-import WatchingIssues from '../components/listIssues/Watching.vue';
 import Details from '../components/Details.vue';
 import CreateEdit from '../components/CreateEdit.vue';
 
@@ -36,18 +32,15 @@ const router = new VueRouter({
                 },
                 {
                     path: "open",
-                    name: "OpenIssues",
-                    component: OpenIssues
+                    name: "OpenIssues"
                 },
                 {
                     path: "mine",
-                    name: "MyIssues",
-                    component: MyIssues
+                    name: "MyIssues"
                 },
                 {
                     path: "watching",
-                    name: "WatchingIssues",
-                    component: WatchingIssues
+                    name: "WatchingIssues"
                 }
             ]
         },
