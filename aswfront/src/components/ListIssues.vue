@@ -35,14 +35,36 @@
                     <th class="header-icon item"></th>
                 </tr>
                 <tr v-for="issue in issuesList" :key="issue.id">
-                    <td class="item"><a :href="issue.id">#{{issue.id}}: {{issue.title}}</a></td>
-                    <td class="item">{{issue.kind}}</td>
-                    <td class="item">{{issue.priority}}</td>
-                    <td class="item">{{issue.status}}</td>
+                    <td class="item">
+                    <a :href="issue.id">#{{issue.id}}: {{issue.title}}</a>
+                    </td>
+                    <td class="item">
+                        <img v-if="issue.kind == 'B'" src="../assets/kind/bug.png"  height="16" width="16">
+                        <img v-else-if="issue.kind == 'E'" src="../assets/kind/enhancement.png"  height="16" width="16">
+                        <img v-else-if="issue.kind == 'T'" src="../assets/kind/task.png"  height="16" width="16">
+                        <img v-else src="../assets/kind/proposal.png"  height="16" width="16">
+                    </td>
+                    <td class="item">
+                        <img v-if="issue.priority == 'BL'" src="../assets/priority/blocker.png"  height="16" width="16">
+                        <img v-else-if="issue.priority == 'MI'" src="../assets/priority/minor.png"  height="16" width="16">
+                        <img v-else-if="issue.priority == 'MA'" src="../assets/priority/major.png"  height="16" width="16">
+                        <img v-else-if="issue.priority == 'TR'" src="../assets/priority/trivial.png"  height="16" width="16">
+                        <img v-else src="../assets/priority/critical.png"  height="16" width="16">
+                    </td>
+                    <td class="item">
+                        <div class="status status-new" v-if="issue.status == 'N'">NEW</div>
+                        <div class="status status-open" v-else-if="issue.status == 'O'">OPEN</div>
+                        <div class="status status-closed-resolved" v-else-if="issue.status == 'R'">RESOLVED</div>
+                        <div class="status status-hold" v-else-if="issue.status == 'H'">ON HOLD</div>
+                        <div class="status status-invalid-wontfix" v-else-if="issue.status == 'I'">INVALID</div>
+                        <div class="status status-duplicate" v-else-if="issue.status == 'D'">DUPLICATED</div>
+                        <div class="status status-invalid-wontfix " v-else-if="issue.status == 'W'">WONTFIX</div>
+                        <div class="status status-closed-resolved" v-else>CLOSED</div>
+                        </td>
                     <td class="item">{{issue.votes.length}}</td>
                     <td class="item">{{issue.assignee}}</td>
-                    <td class="item">{{issue.created_at}}</td>
-                    <td class="item">{{issue.updated_at}}</td>
+                    <td class="item">{{issue.created_at.split('T')[0]}}</td>
+                    <td class="item">{{issue.updated_at.split('T')[0]}}</td>
                     <td>50</td>
                 </tr>
             </table>
@@ -133,5 +155,30 @@ a.nav-link {
 }
 .header-large {
     width: 18%;
+}
+.status-closed-resolved {
+    border: 1px solid #60b070;
+}
+.status-hold {
+    border: 1px solid #ffe9a8;
+}
+.status-open {
+    border: 1px solid #ccc;
+}
+.status-new {
+    border: 1px solid #a5b3c2;
+}
+.status-invalid-wontfix {
+    border: 1px solid #e8a29b;
+}
+.status-duplicate {
+    border: 1px solid #c0ad9d;
+}
+.status {
+    border-radius: 5px;
+    width: min-content;
+    font-weight: bold;
+    padding: 3px;
+    font-size: 8pt;
 }
 </style>
