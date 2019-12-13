@@ -3,7 +3,6 @@
         <NavBar></NavBar>
         <b-jumbotron header="Welcome to Issue Tracker" class="jumbo-home">
             <p>Your Username: Name</p>
-            <p>Your token: Token</p>
             <b-button class="jumbo-button" href="/issues">Go to Issues List</b-button>
         </b-jumbotron>
         <p class="devteam-p">Developer team:</p>
