@@ -25,14 +25,14 @@
             <table style="width:100%">
                 <tr class="head-table">
                     <th class="header-title item">Title</th>
-                    <th class="header-icon item">T</th>
-                    <th class="header-icon item">P</th>
+                    <th class="header-small item">T</th>
+                    <th class="header-small item">P</th>
                     <th class="header-medium item">Status</th>
                     <th class="header-small item">Votes</th>
-                    <th class="header-large item">Assignee</th>
+                    <th class="header-medium item">Assignee</th>
                     <th class="header-medium item">Created</th>
                     <th class="header-medium item">Updated</th>
-                    <th class="header-icon item"></th>
+                    <th class="header-small item"></th>
                 </tr>
                 <tr v-for="issue in issuesList" :key="issue.id">
                     <td class="item">
@@ -61,7 +61,7 @@
                         <div class="status status-invalid-wontfix " v-else-if="issue.status == 'W'">WONTFIX</div>
                         <div class="status status-closed-resolved" v-else>CLOSED</div>
                         </td>
-                    <td class="item">{{issue.votes.length}}</td>
+                    <td class="item" style="text-align: center">{{issue.votes.length}}</td>
                     <td class="item">{{issue.assignee}}</td>
                     <td class="item">{{issue.created_at.split('T')[0]}}</td>
                     <td class="item">{{issue.updated_at.split('T')[0]}}</td>
@@ -142,19 +142,13 @@ a.nav-link {
     padding: 8px;
 }
 .header-title {
-    width: 25%;
-}
-.header-icon {
-    width: 5%;
+    width: 53%;
 }
 .header-small {
-    width: 8%;
+    width: 5%;
 }
 .header-medium {
-    width: 13%;
-}
-.header-large {
-    width: 18%;
+    width: 7%;
 }
 .status-closed-resolved {
     border: 1px solid #60b070;
