@@ -12,7 +12,7 @@
     <b-row style="margin-left: 0">
       <p class="my-auto mr-2">Filter by:</p>
       <div>
-        <b-nav pills>
+        <b-nav pills @click="getIssues(lastOrder)">
           <b-nav-item to="all" exact exact-active-class="active" class="mx-1 nav-item">All</b-nav-item>
           <b-nav-item to="open" exact exact-active-class="active" class="mx-1">Open</b-nav-item>
           <b-nav-item to="mine" exact exact-active-class="active" class="mx-1">My issues</b-nav-item>
@@ -25,28 +25,141 @@
       <table style="width:100%">
         <tr class="head-table">
           <th class="header-title itemh">
-            <b-button class="btn-header">Title</b-button>
+            <b-button class="btn-header" @click="getIssues('title')">
+              Title
+              <img
+                v-if="lastOrder == 'title'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-title'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-small itemh">
-            <b-button class="btn-header">T</b-button>
+            <b-button class="btn-header" @click="getIssues('kind')">T
+              <img
+                v-if="lastOrder == 'kind'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-kind'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-small itemh">
-            <b-button class="btn-header">P</b-button>
+            <b-button class="btn-header" @click="getIssues('priority')">P
+              <img
+                v-if="lastOrder == 'priority'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-priority'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header">Status</b-button>
+            <b-button class="btn-header" @click="getIssues('status')">Status
+              <img
+                v-if="lastOrder == 'status'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-status'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-small itemh">
-            <b-button class="btn-header">Votes</b-button>
+            <b-button class="btn-header" @click="getIssues('votes')">Votes
+              <img
+                v-if="lastOrder == 'votes'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-votes'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header">Assignee</b-button>
+            <b-button class="btn-header" @click="getIssues('assignee')">Assignee
+              <img
+                v-if="lastOrder == 'assignee'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-assignee'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header">Created</b-button>
+            <b-button class="btn-header" @click="getIssues('created_at')">Created
+              <img
+                v-if="lastOrder == 'created_at'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-created_at'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header">Updated</b-button>
+            <b-button class="btn-header" @click="getIssues('updated_at')">Updated
+              <img
+                v-if="lastOrder == 'updated_at'"
+                src="../assets/arrow.png"
+                height="12"
+                width="12"
+              />
+              <img
+                v-if="lastOrder == '-updated_at'"
+                src="../assets/arrow.png"
+                style="transform: rotate(180deg);"
+                height="12"
+                width="12"
+              />
+            </b-button>
           </th>
           <th class="header-small itemh"></th>
         </tr>
@@ -109,7 +222,12 @@
           <td class="item">{{issue.assignee}}</td>
           <td class="item">{{issue.created_at.split('T')[0]}}</td>
           <td class="item">{{issue.updated_at.split('T')[0]}}</td>
-          <td>50</td>
+          <td>
+            <button>
+              <img src="../assets/watching/eye-close.png" alt="">
+              <img src="../assets/watching/eye-open.png" alt="">
+            </button>
+          </td>
         </tr>
       </table>
     </b-row>
@@ -125,29 +243,35 @@ export default {
   data: function() {
     return {
       issuesList: [],
-      totalIssues: Number
+      totalIssues: Number,
+      lastOrder: String
     };
   },
   mounted: function() {
-    this.getIssues("", "id");
+    this.getIssues("id");
   },
   methods: {
-    getIssues: function(view, order) {
+    getIssues: function(order) {
+      let ord = order;
+      if (order === this.lastOrder) {
+        if (order.charAt(0) == '-') {
+          ord = order.substr(1)
+        }
+        else {
+          ord = "-" + order;
+        }
+      }
       api
-        .getIssues(view, order, "ea83ec557b21f0dc385c553edb8717ef8252e100")
+        .getIssues(
+          this.$route.name,
+          ord,
+          "ea83ec557b21f0dc385c553edb8717ef8252e100"
+        )
         .then(response => {
           this.issuesList = response;
           this.totalIssues = response.length;
+          this.lastOrder = ord;
         });
-    },
-    deletecomment: function() {
-      api
-        .deleteIssueCommentById(
-          15,
-          79,
-          "ea83ec557b21f0dc385c553edb8717ef8252e100"
-        )
-        .then();
     }
   }
 };
@@ -243,5 +367,9 @@ a.nav-link {
 .btn-header:hover {
   background-color: #deebff;
   cursor: pointer;
+}
+.btn-header:focus {
+  outline: none !important;
+  -webkit-box-shadow: none;
 }
 </style>
