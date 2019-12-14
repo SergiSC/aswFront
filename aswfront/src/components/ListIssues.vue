@@ -189,11 +189,10 @@ a.nav-link {
 }
 .item {
   text-align: left;
-  padding: 8px;
+  padding: 4px;
 }
 .itemh {
   text-align: left;
-  padding: 0 8px;
 }
 .header-title {
   width: 53%;
