@@ -371,5 +371,6 @@ a.nav-link {
 .btn-header:focus {
   outline: none !important;
   -webkit-box-shadow: none;
+  box-shadow: none;
 }
 </style>
