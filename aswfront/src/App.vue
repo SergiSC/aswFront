@@ -8,6 +8,7 @@
 
 export default {
   name: 'app',
+  token: 'ea83ec557b21f0dc385c553edb8717ef8252e100',
   components: {
   }
 }
