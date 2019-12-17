@@ -8,7 +8,7 @@
                 <img class="img-navbar-home" src="../../assets/house.png" >
             </a>
         </div>
-        <div v-if="actualPage!='issues'" class="mx-auto background-img">
+        <div v-if="actualPage!='Issues'" class="mx-auto background-img">
             <a href="/issues">
                 <img class="img-navbar-home" src="../../assets/list.png" >
             </a>
@@ -31,7 +31,7 @@ export default {
     },
 
     mounted: function() {
-        this.actualPage = this.$route.fullPath.split('/')[1]
+        this.actualPage = this.$route.name
     },
     methods: {
     }

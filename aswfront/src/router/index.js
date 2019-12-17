@@ -28,19 +28,19 @@ const router = new VueRouter({
             children: [
                 {
                     path: "all",
-                    name: ""
+                    name: "Issues"
                 },
                 {
                     path: "open",
-                    name: "open"
+                    name: "Issues"
                 },
                 {
                     path: "mine",
-                    name: "mine"
+                    name: "Issues"
                 },
                 {
                     path: "watching",
-                    name: "watching"
+                    name: "Issues"
                 }
             ]
         },
