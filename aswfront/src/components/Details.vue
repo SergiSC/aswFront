@@ -1,5 +1,5 @@
 <template>
-    <b-container fluid style="margin-left:110px">
+    <div style="margin-left:110px; overflow: hidden;">
         <NavBar></NavBar>
         <b-row class="mt-5 mb-2">
             <b-col>
@@ -22,19 +22,105 @@
             <b-col></b-col>
         </b-row>
         <b-row>
-            <ul v-for="comment in comments" :key="comment.id">
-                <li>
-                    <Comment 
-                    :id="comment.id"
-                    :text="comment.text"
-                    :author="comment.author"
-                    :created="comment.created_at">
-                    </Comment>
-                </li>
-            </ul>
+            <p class="ml-3 my-1" style="color:var(--navbar-color);">{{issue.reporter}} </p> 
+            <p class="mx-1 my-1 mb-3">
+                created an issue 
+            </p>
+            <p class="my-1" style="font-weight: bold;">{{issueDate}}</p>
         </b-row>
-
-    </b-container>
+        <b-row class="ml-3">
+            <h3>New comment</h3>
+            <b-form-textarea
+                id="textarea"
+                v-model="textareaComment"
+                placeholder="Enter a new comment..."
+                class="textArea"
+                rows="3"
+                max-rows="6"
+            ></b-form-textarea>
+        </b-row>
+        <b-row class="ml-3">
+            <b-button class="mr-3 button-edit" @click="newComment()">
+                Save
+            </b-button>
+            <b-button @click="textareaComment = ''">
+                Cancel
+            </b-button>
+        </b-row>
+        <b-row class="mt-3 ml-3">
+            <h4>Comments:</h4>
+            <div :key="keys.comments" class="div-comment">
+                <div 
+                v-for="comment in comments" 
+                :key="-comment.created_at"
+                >
+                        <Comment 
+                        :id="comment.id"
+                        :auto="comment.auto"
+                        :text="comment.text"
+                        :author="comment.author"
+                        :created="comment.created_at">
+                        </Comment>
+                </div>
+            </div>
+        </b-row>
+        <!--dreta-->
+        <b-container class="info-resum" fluid>
+            <b-row>
+                <b-col style="text-align: left;">
+                    <h4 class="title-resum mt-4">Issue information:</h4>
+                    <b-row>
+                        <b-col cols="3">
+                            <p>Assignee: </p>
+                        </b-col>
+                        <b-col cols="9">
+                            <p>{{issue.assignee}}</p>
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col cols="3">
+                            <p>Kind: </p>
+                        </b-col>
+                        <b-col cols="9">
+                            <p>{{issue.kind}}</p>
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col cols="3">
+                            <p>Priority: </p>
+                        </b-col>
+                        <b-col cols="9">
+                            <p>{{issue.priority}}</p>
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col cols="3">
+                            <p>Status: </p>
+                        </b-col>
+                        <b-col cols="9">
+                            <p>{{issue.status}}</p>
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col cols="3">
+                            <p>Votes: </p>
+                        </b-col>
+                        <b-col cols="9">
+                            <p>{{issue.votes.length}}</p>
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col cols="3">
+                            <p>Watchers: </p>
+                        </b-col>
+                        <b-col cols="9">
+                            <p>{{issue.watchers.length}}</p>
+                        </b-col>
+                    </b-row>
+                </b-col>
+            </b-row>
+        </b-container>
+    </div>
 </template>
 
 <script lang="ts">
@@ -48,7 +134,12 @@ export default {
     data: function() {
         return {
             issue: {},
-            comments: []
+            issueDate: "",
+            comments: [],
+            textareaComment: "",
+            keys: {
+                comments: 0
+            }
         };
     },
     mounted: function() {
@@ -59,11 +150,24 @@ export default {
         getIssue: function(id) {
             api.getIssueById(id, global.data().token).then(response => {
                 this.issue = response
+                this.issueDate = new Date(this.issue.created_at).toString().split(' GMT')[0]
             })
         },
         getComments: function(id) {
             api.getIssueComments(id,  global.data().token).then(response => {
                 this.comments = response
+                this.comments.sort(function(a,b){
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+            })
+        },
+        newComment: function() {
+            const body = {
+                text: this.textareaComment
+            }
+            api.postIssueComment(this.issue.id, body, global.data().token).then(() => {
+                this.getComments(this.issue.id)
+                this.keys.comments += 1
             })
         }
     }
@@ -97,5 +201,36 @@ export default {
   margin-top:2px;
   padding: 3px;
   font-size: 8pt;
+}
+.div-comment {
+    width:100%;
+    margin: 3px 50% 3px 0;
+}
+.textArea {
+    border:1px solid var(--navbar-color);
+    margin: 3px 50% 3px 0;
+}
+.button-edit {
+    border-color: var(--navbar-color);
+    background-color: var(--navbar-color);
+    color: white;
+}
+.button-edit:hover, .button-edit:focus {
+    border-color: var(--navbar-color);
+    background-color: white;
+    color: var(--navbar-color);
+}
+.info-resum {
+    border: 1px solid grey;
+    background-color: white;
+    position: fixed;
+    top: 150px;
+    right: 20px;
+    z-index: 999;
+    width: 40%;
+}
+.title-resum {
+    border-bottom: 1px solid grey;
+    color: grey;
 }
 </style>
