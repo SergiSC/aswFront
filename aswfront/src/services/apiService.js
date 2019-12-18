@@ -20,7 +20,8 @@ export default {
     getIssueDocuments,
     postIssueDocument,
     deleteIssueDocument,
-    getUsers
+    getUsers,
+    getUserInfo
 }
 
 /*----------ISSUES----------*/
@@ -280,6 +281,15 @@ async function getUsers(token) {
         })
         .then(response => {
             result = response.data
+        })
+    return result
+}
+
+async function getUserInfo(token) {
+    let result = {}
+    await axios
+        .get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + token).then(response =>{
+            result = response
         })
     return result
 }
