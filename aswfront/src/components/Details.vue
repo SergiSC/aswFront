@@ -3,9 +3,26 @@
     <NavBar></NavBar>
     <b-row class="mt-5 mb-2">
       <b-col>
-        <h1 style="display: flex;">{{issue.title}}</h1>
+        <h3 style="display: flex;">{{issue.title}}</h3>
       </b-col>
-      <b-col></b-col>
+      <b-col>
+        <b-row>
+          <b-form-select
+            class="workflow-select mr-2"
+            v-model="selectedWorkflow"
+            :options="optionsWorkflow"
+            @change="changeWorkflow()"
+          >
+            <template v-slot:first>
+              <option :value="null" disabled>Workflow</option>
+            </template>
+          </b-form-select>
+          <b-button class="bton-issues mr-2">Attachment</b-button>
+          <b-button class="bton-issues mr-2" @click="deleteIssue()">Delete</b-button>
+          <b-button class="bton-issues mr-2" :href="'/edit/' + issue.id">Edit Issue</b-button>
+          <b-button class="bton-issues" href="/create">Create Issue</b-button>
+        </b-row>
+      </b-col>
     </b-row>
     <b-row>
       <h4 class="mx-3" style="display: flex; color: #172B4D">Issue #{{issue.id}}</h4>
@@ -24,6 +41,10 @@
       <p class="mx-1 my-1 mb-3">created an issue</p>
       <p class="my-1" style="font-weight: bold;">{{issueDate}}</p>
     </b-row>
+    <b-row class="mb-3" style="width:50%; text-align:left">
+      <p class="ml-3 my-1" style="color:var(--navbar-color); font-weight: bold;">Description:</p>
+      <p class="ml-3 my-1">{{issue.description}}</p>
+    </b-row>
     <b-row class="ml-3">
       <h3>New comment</h3>
       <b-form-textarea
@@ -41,7 +62,7 @@
     </b-row>
     <b-row class="mt-3 ml-3">
       <h4>Comments:</h4>
-      <div :key="keys.comments" class="div-comment">
+      <div class="div-comment">
         <div v-for="comment in comments" :key="-comment.created_at">
           <Comment
             :id="comment.id"
@@ -63,7 +84,7 @@
               <p>Assignee:</p>
             </b-col>
             <b-col cols="9" style="text-align:left">
-              <p v-if="issue.assignee !== null">{{issue.assignee}}</p>
+              <p v-if="issue.assignee !== null">{{assigneeName}}</p>
               <p v-else>--</p>
             </b-col>
           </b-row>
@@ -153,8 +174,8 @@
             </b-col>
             <b-col cols="9" style="text-align: left;">
               <b-row class="mx-2">
-                  <p class="vote-num">{{issue.votes.length}}</p>
-                  <b-button size="sm" class="button-vote">Vote for this issue</b-button>
+                <p class="vote-num">{{issue.votes.length}}</p>
+                <b-button size="sm" class="button-vote">Vote for this issue</b-button>
               </b-row>
             </b-col>
           </b-row>
@@ -163,9 +184,9 @@
               <p>Watchers:</p>
             </b-col>
             <b-col cols="9" style="text-align: left;">
-                <b-row class="mx-2">
-                  <p class="vote-num">{{issue.watchers.length}}</p>
-                  <b-button size="sm" class="button-vote">Watch this issue</b-button>
+              <b-row class="mx-2">
+                <p class="vote-num">{{issue.watchers.length}}</p>
+                <b-button size="sm" class="button-vote">Watch this issue</b-button>
               </b-row>
             </b-col>
           </b-row>
@@ -188,15 +209,24 @@ export default {
       issue: {},
       issueDate: "",
       comments: [],
+      selectedWorkflow: null,
+      optionsWorkflow: [
+        { value: "R", text: "Resolved" },
+        { value: "H", text: "On hold" },
+        { value: "O", text: "Open" },
+        { value: "I", text: "Invalid" },
+        { value: "D", text: "Duplicate" },
+        { value: "W", text: "Wontfix" },
+        { value: "C", text: "Closed" }
+      ],
       textareaComment: "",
-      keys: {
-        comments: 0
-      }
+      assigneeName: ""
     };
   },
   mounted: function() {
     this.getIssue(this.$route.params.id);
     this.getComments(this.$route.params.id);
+    this.getUsers()
   },
   methods: {
     getIssue: function(id) {
@@ -223,8 +253,34 @@ export default {
         .postIssueComment(this.issue.id, body, global.data().token)
         .then(() => {
           this.getComments(this.issue.id);
-          this.keys.comments += 1;
         });
+    },
+    changeWorkflow: function() {
+      const body = {
+        status: this.selectedWorkflow
+      };
+      api
+        .putIssueWorkflow(this.issue.id, body, global.data().token)
+        .then(() => {
+          this.getIssue(this.issue.id);
+          this.getComments(this.issue.id);
+        });
+    },
+    deleteIssue: function() {
+      api
+        .deleteIssueById(this.issue.id, global.data().token)
+        .then(() => {
+          this.$router.push("/issues")
+        });
+    },
+    getUsers: function() {
+      api.getUsers(global.data().token).then(result => {
+        result.forEach(element => {
+          if (element.id == this.issue.assignee) {
+            this.assigneeName = element.username
+          }
+        })
+      })
     }
   }
 };
@@ -291,18 +347,35 @@ export default {
   color: grey;
 }
 .button-vote {
-    height: 30px;
-    background-color: white;
-    border-color: white;
-    color: var(--navbar-color);
-    margin-top: -3px;
+  height: 30px;
+  background-color: white;
+  border-color: white;
+  color: var(--navbar-color);
+  margin-top: -3px;
 }
 .vote-num {
-    margin-left: -7px;
-    width: 20px;
-    background-color: var(--navbar-color);
-    border-radius: 25px;
-    padding: 0 5px;
-    color: white;
+  margin-left: -7px;
+  width: 20px;
+  background-color: var(--navbar-color);
+  border-radius: 25px;
+  padding: 0 5px;
+  color: white;
+}
+.workflow-select {
+  width: 20%;
+}
+.bton-issues {
+  display: flex;
+  float: right;
+  border: none;
+  border-radius: 0;
+  background-color: #f4f5f7;
+  color: black;
+}
+.bton-issues:hover {
+  background-color: #ebecf0;
+}
+.bton-issues:focus {
+  outline: none;
 }
 </style>

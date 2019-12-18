@@ -1,11 +1,13 @@
 export default {
     data: function() {
         return {
-            token: 'ea83ec557b21f0dc385c553edb8717ef8252e100'
+            token: 'ea83ec557b21f0dc385c553edb8717ef8252e100',
+            users: [],
+            actualUser: 4
         }
     },
     getToken,
-    setToken,
+    setToken
 }
 
 function getToken() {

@@ -1,11 +1,23 @@
 <template>
   <div class="layout">
+    <div class="alert-fail">
+      <b-alert
+      :show="dismissCountDown"
+      dismissible
+      variant="danger"
+      @dismissed="dismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      Title, type and priority fields are mandatory!
+    </b-alert>
+    </div>
     <NavBar></NavBar>
     <b-container fuild>
       <b-row>
         <b-col>
           <h1 style="display: flex;">Issues</h1>
-          <h5 style="display: flex; font-weight: bold">Create issue</h5>
+          <h5 v-if="actualPage == 'Edit Issue'" style="display: flex; font-weight: bold">Edit issue</h5>
+          <h5 v-else style="display: flex; font-weight: bold">Create issue</h5>
         </b-col>
       </b-row>
       <!--title-->
@@ -73,7 +85,8 @@
       <b-row class="my-2">
         <b-col cols="8"></b-col>
         <b-col cols="2">
-          <b-button class="button btn-create" @click="newIssue()">Create Issue</b-button>
+          <b-button v-if="actualPage == 'Edit Issue'" class="button btn-create" @click="editIssue()"> Edit Issue</b-button>
+          <b-button v-else class="button btn-create" @click="newIssue()">Create Issue</b-button>
         </b-col>
         <b-col cols="2">
           <b-button class="button" @click="toList()">Cancel</b-button>
@@ -94,8 +107,15 @@ export default {
     return {
       titleText: "",
       descriptionText: "",
+      users: [],
       optionsAssignee: [
         { value: null, text: '--' },
+        { value: 2, text: "santiago.lasobras" },
+        { value: 8, text: "admin" },
+        { value: 4, text: "sergi.serrano.casalins" },
+        { value: 7, text: "quim.motger" },
+        { value: 3, text: "victtortomas1997" },
+        { value: 1, text: "slasobra" },
       ],
       assigneeSelected: null,
       optionsKind: [
@@ -113,14 +133,35 @@ export default {
         { value: 'TR', text: 'Trivial' }
       ],
       prioritySelected: "BL",
-      all:{}
+      dismissSecs: 5,
+      dismissCountDown: 0,
+      actualPage:''
     };
+  },
+  mounted: function() {
+    this.actualPage = this.$route.name
+    this.setUsers()
+    if (this.$route.name == 'Edit Issue') {
+      api.getIssueById(this.$route.params.id, global.data().token).then(response => {
+        this.titleText = response.title
+        this.descriptionText = response.description
+        this.assigneeSelected = response.assignee
+        this.kindSelected = response.kind
+        this.prioritySelected = response.priority
+      })
+    }
   },
   methods: {
     toList: function() {
-      this.$router.push("/issues");
+      if (this.$route.name == 'New issue') {
+        this.$router.push("/issues");
+      }
+      else {
+        this.$router.push("/issues/"+this.$route.params.id);
+      }
     },
     newIssue: function() {
+      if(this.titleText != '') {
         const body = {
             title: this.titleText,
             description: this.descriptionText,
@@ -128,10 +169,41 @@ export default {
             priority: this.prioritySelected,
             assignee: this.assigneeSelected
         }
-        this.all = body
         api.postIssue(body, global.data().token).then(response => {
-            this.$router.push("/issues/"+response)
+            this.$router.push("/issues/"+response.id)
         })
+      }
+      else {
+        this.showAlert()
+      }
+    },
+    editIssue: function() {
+      if(this.titleText != '') {
+        const body = {
+            title: this.titleText,
+            description: this.descriptionText,
+            kind: this.kindSelected,
+            priority: this.prioritySelected,
+            assignee: this.assigneeSelected
+        }
+        api.putIssueById(this.$route.params.id ,body, global.data().token).then(response => {
+            this.$router.push("/issues/"+response.id)
+        })
+      }
+      else {
+        this.showAlert()
+      }
+    },
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown
+    },
+    showAlert() {
+      this.dismissCountDown = this.dismissSecs
+    },
+    setUsers: function() {
+      api.getUsers(global.data().token).then(result => {
+        this.users = result
+      })
     }
   }
 };
@@ -160,5 +232,9 @@ export default {
   border-color: var(--navbar-color);
   background-color: white;
   color: var(--navbar-color);
+}
+.alert-fail {
+  width: 400px;
+  float: right;
 }
 </style>

@@ -12,13 +12,15 @@ export default {
     getIssueById,
     putIssueById,
     deleteIssueById,
+    putIssueWorkflow,
     getIssueComments,
     postIssueComment,
     putIssueCommentById,
     deleteIssueCommentById,
     getIssueDocuments,
     postIssueDocument,
-    deleteIssueDocument
+    deleteIssueDocument,
+    getUsers
 }
 
 /*----------ISSUES----------*/
@@ -148,6 +150,20 @@ async function deleteIssueById(issueId, token) {
     return result
 }
 
+async function putIssueWorkflow(issueId, body, token) {
+    let result = {}
+    await axios
+        .put(baseUrl + 'issues/' + issueId + "/workflow", body, {
+            headers: {
+                Authorization: 'Token ' + token
+            }
+        })
+        .then(response => {
+            result = response.data
+        })
+    return result
+}
+
 /*----------COMMENTS----------*/
 async function getIssueComments(issueId, token) {
     let result = []
@@ -243,6 +259,21 @@ async function deleteIssueDocument(issueId, documentId, token) {
     let result = {}
     await axios
         .delete(baseUrl + 'issues/' + issueId + '/document/' + documentId, {
+            headers: {
+                Authorization: 'Token ' + token
+            }
+        })
+        .then(response => {
+            result = response.data
+        })
+    return result
+}
+
+/*----------USERS----------*/
+async function getUsers(token) {
+    let result = []
+    await axios
+        .get(baseUrl + 'users', {
             headers: {
                 Authorization: 'Token ' + token
             }

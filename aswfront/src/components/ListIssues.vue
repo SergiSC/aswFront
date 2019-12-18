@@ -243,14 +243,21 @@ export default {
   data: function() {
     return {
       issuesList: [],
+      users: [],
       totalIssues: Number,
       lastOrder: String
     };
   },
   mounted: function() {
+    this.getUsers()
     this.getIssues("id");
   },
   methods: {
+    getUsers: function() {
+      api.getUsers("ea83ec557b21f0dc385c553edb8717ef8252e100").then(result => {
+        this.users = result
+      })
+    },
     getIssues: function(order) {
       let ord = order;
       if (order === this.lastOrder) {
@@ -271,7 +278,17 @@ export default {
           this.issuesList = response;
           this.totalIssues = response.length;
           this.lastOrder = ord;
+          this.setUsers(response)
         });
+    },
+    setUsers: function() {
+      this.issuesList.forEach(issue => {
+        this.users.forEach(us => {
+          if (issue.assignee != null && issue.assignee == us.id) {
+            issue.assignee = us.username
+          }
+        })
+      });
     }
   }
 };

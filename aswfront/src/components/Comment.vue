@@ -20,11 +20,11 @@
           />
         </b-col>
         <b-col cols="9">
-          <p class="my-2 ml-2 p-autor">{{author}}</p>
+          <p class="my-2 ml-2 p-autor">{{authorName}}</p>
           <p style="display:flex" class="mt-2 mb-4 ml-2">{{text}}</p>
           <b-row class="low-comment my-1">
-              <b-button class="mx-2 button-edit">Edit</b-button>
-              <b-button class="mx-2" variant="outline-danger">Delete</b-button>
+              <b-button v-if="canEdit()" class="mx-2 button-edit">Edit</b-button>
+              <b-button v-if="canEdit()" class="mx-2" variant="outline-danger" @click="deleteComment()">Delete</b-button>
               <p class="p-date ml-2 mr-4 my-auto">{{commentDate}}</p>
           </b-row>
         </b-col>
@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import api from "../services/apiService.js";
+import global from "../services/global.js";
 export default {
   name: "comment",
   props: {
@@ -45,11 +47,35 @@ export default {
   },
   data: function() {
       return {
-          commentDate: ""
+          commentDate: "",
+          users: [],
+          authorName: ''
       }
   },
   mounted: function() {
+    this.getUsers()
       this.commentDate = new Date(this.created).toString().split(' GMT')[0]
+  },
+  methods: {
+    getUsers: function() {
+      api.getUsers(global.data().token).then(result => {
+        result.forEach(element => {
+          if (element.id == this.author) {
+            this.authorName = element.username
+          }
+        })
+      })
+    },
+    canEdit: function() {
+      if (this.auto || this.author != global.data().actualUser) {
+        return false
+      }
+      else return true
+    },
+    deleteComment() {
+      api.deleteIssueCommentById(this.$route.params.id, this.id, global.data().token).then(() => {
+      })
+    }
   }
 };
 </script>
