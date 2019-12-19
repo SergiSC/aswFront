@@ -62,16 +62,15 @@
     </b-row>
     <b-row class="mt-3 ml-3">
       <h4>Comments:</h4>
-      <div class="div-comment">
-        <div v-for="comment in comments" :key="-comment.created_at">
+        <div class="div-comment" v-for="comment in comments" :key="comment.id">
           <Comment
-            :id="comment.id"
+            @rerender="refreshComponent()"
             :auto="comment.auto"
             :text="comment.text"
             :author="comment.author"
             :created="comment.created_at"
+            :id="comment.id"
           ></Comment>
-        </div>
       </div>
     </b-row>
     <!--dreta-->
@@ -174,7 +173,7 @@
             </b-col>
             <b-col cols="9" style="text-align: left;">
               <b-row class="mx-2">
-                <p class="vote-num">{{issue.votes.length}}</p>
+                <p class="vote-num mr-3">{{issue.votes.length}}</p>
                 <b-button size="sm" class="button-vote">Vote for this issue</b-button>
               </b-row>
             </b-col>
@@ -185,7 +184,7 @@
             </b-col>
             <b-col cols="9" style="text-align: left;">
               <b-row class="mx-2">
-                <p class="vote-num">{{issue.watchers.length}}</p>
+                <p class="vote-num mr-3">{{issue.watchers.length}}</p>
                 <b-button size="sm" class="button-vote">Watch this issue</b-button>
               </b-row>
             </b-col>
@@ -199,7 +198,7 @@
 <script lang="ts">
 import NavBar from "./verticalNavBar/NavBar.vue";
 import api from "../services/apiService.js";
-import global from "../services/global.js";
+import { mapGetters } from "vuex";
 import Comment from "./Comment.vue";
 export default {
   name: "Details",
@@ -226,11 +225,19 @@ export default {
   mounted: function() {
     this.getIssue(this.$route.params.id);
     this.getComments(this.$route.params.id);
-    this.getUsers()
+    this.setInformation()
+  },
+  computed: {
+    ...mapGetters({
+      userName: "userName",
+      token: "token",
+      idUser: "idUser",
+      users: "users"
+    })
   },
   methods: {
     getIssue: function(id) {
-      api.getIssueById(id, global.data().token).then(response => {
+      api.getIssueById(id, this.token).then(response => {
         this.issue = response;
         this.issueDate = new Date(this.issue.created_at)
           .toString()
@@ -238,11 +245,18 @@ export default {
       });
     },
     getComments: function(id) {
-      api.getIssueComments(id, global.data().token).then(response => {
+      api.getIssueComments(id, this.token).then(response => {
         this.comments = response;
         this.comments.sort(function(a, b) {
           return new Date(b.created_at) - new Date(a.created_at);
         });
+      });
+    },
+    setInformation: function() {
+      this.users.forEach(element => {
+        if(element.id === this.issue.assignee) {
+          this.assigneeName = element.username
+        }
       });
     },
     newComment: function() {
@@ -250,7 +264,7 @@ export default {
         text: this.textareaComment
       };
       api
-        .postIssueComment(this.issue.id, body, global.data().token)
+        .postIssueComment(this.issue.id, body, this.token)
         .then(() => {
           this.getComments(this.issue.id);
         });
@@ -260,7 +274,7 @@ export default {
         status: this.selectedWorkflow
       };
       api
-        .putIssueWorkflow(this.issue.id, body, global.data().token)
+        .putIssueWorkflow(this.issue.id, body, this.token)
         .then(() => {
           this.getIssue(this.issue.id);
           this.getComments(this.issue.id);
@@ -268,19 +282,13 @@ export default {
     },
     deleteIssue: function() {
       api
-        .deleteIssueById(this.issue.id, global.data().token)
+        .deleteIssueById(this.issue.id, this.token)
         .then(() => {
           this.$router.push("/issues")
         });
     },
-    getUsers: function() {
-      api.getUsers(global.data().token).then(result => {
-        result.forEach(element => {
-          if (element.id == this.issue.assignee) {
-            this.assigneeName = element.username
-          }
-        })
-      })
+    refreshComponent: function() {
+      this.getComments(this.issue.id)
     }
   }
 };

@@ -99,7 +99,7 @@
 <script lang="ts">
 import NavBar from "./verticalNavBar/NavBar.vue";
 import api from "../services/apiService.js";
-import global from "../services/global.js";
+import { mapGetters } from "vuex";
 export default {
   name: "CreateEdit",
   components: { NavBar },
@@ -140,9 +140,8 @@ export default {
   },
   mounted: function() {
     this.actualPage = this.$route.name
-    this.setUsers()
     if (this.$route.name == 'Edit Issue') {
-      api.getIssueById(this.$route.params.id, global.data().token).then(response => {
+      api.getIssueById(this.$route.params.id, this.token).then(response => {
         this.titleText = response.title
         this.descriptionText = response.description
         this.assigneeSelected = response.assignee
@@ -150,6 +149,14 @@ export default {
         this.prioritySelected = response.priority
       })
     }
+  },
+  computed: {
+    ...mapGetters({
+      userName: "userName",
+      token: "token",
+      idUser: "idUser",
+      users: "users"
+    })
   },
   methods: {
     toList: function() {
@@ -169,7 +176,7 @@ export default {
             priority: this.prioritySelected,
             assignee: this.assigneeSelected
         }
-        api.postIssue(body, global.data().token).then(response => {
+        api.postIssue(body, this.token).then(response => {
             this.$router.push("/issues/"+response.id)
         })
       }
@@ -186,7 +193,7 @@ export default {
             priority: this.prioritySelected,
             assignee: this.assigneeSelected
         }
-        api.putIssueById(this.$route.params.id ,body, global.data().token).then(response => {
+        api.putIssueById(this.$route.params.id ,body, this.token).then(response => {
             this.$router.push("/issues/"+response.id)
         })
       }
@@ -199,11 +206,6 @@ export default {
     },
     showAlert() {
       this.dismissCountDown = this.dismissSecs
-    },
-    setUsers: function() {
-      api.getUsers(global.data().token).then(result => {
-        this.users = result
-      })
     }
   }
 };

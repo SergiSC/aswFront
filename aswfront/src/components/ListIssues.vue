@@ -12,7 +12,7 @@
     <b-row style="margin-left: 0">
       <p class="my-auto mr-2">Filter by:</p>
       <div>
-        <b-nav pills @click="getIssues(lastOrder)">
+        <b-nav pills @click="getIssues(lastOrder,'pills')">
           <b-nav-item to="all" exact exact-active-class="active" class="mx-1 nav-item">All</b-nav-item>
           <b-nav-item to="open" exact exact-active-class="active" class="mx-1">Open</b-nav-item>
           <b-nav-item to="mine" exact exact-active-class="active" class="mx-1">My issues</b-nav-item>
@@ -25,7 +25,7 @@
       <table style="width:100%">
         <tr class="head-table">
           <th class="header-title itemh">
-            <b-button class="btn-header" @click="getIssues('title')">
+            <b-button class="btn-header" @click="getIssues('title','order')">
               Title
               <img
                 v-if="lastOrder == 'title'"
@@ -43,13 +43,9 @@
             </b-button>
           </th>
           <th class="header-small itemh">
-            <b-button class="btn-header" @click="getIssues('kind')">T
-              <img
-                v-if="lastOrder == 'kind'"
-                src="../assets/arrow.png"
-                height="12"
-                width="12"
-              />
+            <b-button class="btn-header" @click="getIssues('kind','order')">
+              T
+              <img v-if="lastOrder == 'kind'" src="../assets/arrow.png" height="12" width="12" />
               <img
                 v-if="lastOrder == '-kind'"
                 src="../assets/arrow.png"
@@ -60,13 +56,9 @@
             </b-button>
           </th>
           <th class="header-small itemh">
-            <b-button class="btn-header" @click="getIssues('priority')">P
-              <img
-                v-if="lastOrder == 'priority'"
-                src="../assets/arrow.png"
-                height="12"
-                width="12"
-              />
+            <b-button class="btn-header" @click="getIssues('priority','order')">
+              P
+              <img v-if="lastOrder == 'priority'" src="../assets/arrow.png" height="12" width="12" />
               <img
                 v-if="lastOrder == '-priority'"
                 src="../assets/arrow.png"
@@ -77,7 +69,8 @@
             </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header" @click="getIssues('status')">Status
+            <b-button class="btn-header" @click="getIssues('status','order')">
+              Status
               <img
                 v-if="lastOrder == 'status'"
                 src="../assets/arrow.png"
@@ -94,7 +87,8 @@
             </b-button>
           </th>
           <th class="header-small itemh">
-            <b-button class="btn-header" @click="getIssues('votes')">Votes
+            <b-button class="btn-header" @click="getIssues('votes','order')">
+              Votes
               <img
                 v-if="lastOrder == 'votes'"
                 src="../assets/arrow.png"
@@ -111,7 +105,8 @@
             </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header" @click="getIssues('assignee')">Assignee
+            <b-button class="btn-header" @click="getIssues('assignee','order')">
+              Assignee
               <img
                 v-if="lastOrder == 'assignee'"
                 src="../assets/arrow.png"
@@ -128,7 +123,8 @@
             </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header" @click="getIssues('created_at')">Created
+            <b-button class="btn-header" @click="getIssues('created_at','order')">
+              Created
               <img
                 v-if="lastOrder == 'created_at'"
                 src="../assets/arrow.png"
@@ -145,7 +141,8 @@
             </b-button>
           </th>
           <th class="header-medium itemh">
-            <b-button class="btn-header" @click="getIssues('updated_at')">Updated
+            <b-button class="btn-header" @click="getIssues('updated_at','order')">
+              Updated
               <img
                 v-if="lastOrder == 'updated_at'"
                 src="../assets/arrow.png"
@@ -223,9 +220,9 @@
           <td class="item">{{issue.created_at.split('T')[0]}}</td>
           <td class="item">{{issue.updated_at.split('T')[0]}}</td>
           <td>
-            <button>
-              <img src="../assets/watching/eye-close.png" alt="">
-              <img src="../assets/watching/eye-open.png" alt="">
+            <button @click="watchUnwatchIssue(issue.id, issue.watchers)" class="bton-watch">
+              <img v-if="!isWatching(issue.watchers)" src="../assets/watching/eye-close.png" alt height="32px" width="32px"/>
+              <img v-else src="../assets/watching/eye-open.png" alt height="32px" width="32px"/>
             </button>
           </td>
         </tr>
@@ -237,58 +234,76 @@
 <script>
 import NavBar from "./verticalNavBar/NavBar.vue";
 import api from "../services/apiService.js";
+import { mapGetters } from "vuex";
 export default {
   name: "ListIssues",
   components: { NavBar },
   data: function() {
     return {
       issuesList: [],
-      users: [],
       totalIssues: Number,
       lastOrder: String
     };
   },
   mounted: function() {
-    this.getUsers()
-    this.getIssues("id");
+    this.getIssues("id","pills");
+  },
+  computed: {
+    ...mapGetters({
+      userName: "userName",
+      token: "token",
+      idUser: "idUser",
+      users: "users"
+    })
   },
   methods: {
-    getUsers: function() {
-      api.getUsers("ea83ec557b21f0dc385c553edb8717ef8252e100").then(result => {
-        this.users = result
-      })
-    },
-    getIssues: function(order) {
+    getIssues: function(order, action) {
       let ord = order;
-      if (order === this.lastOrder) {
-        if (order.charAt(0) == '-') {
-          ord = order.substr(1)
-        }
-        else {
-          ord = "-" + order;
+      if(action === "order") {
+        if (order === this.lastOrder) {
+          if (order.charAt(0) == "-") {
+            ord = order.substr(1);
+          } else {
+            ord = "-" + order;
+          }
         }
       }
-      api
-        .getIssues(
-          this.$route.name,
-          ord,
-          "ea83ec557b21f0dc385c553edb8717ef8252e100"
-        )
-        .then(response => {
-          this.issuesList = response;
-          this.totalIssues = response.length;
-          this.lastOrder = ord;
-          this.setUsers(response)
-        });
+      api.getIssues(this.$route.name, ord, this.token).then(response => {
+        this.issuesList = response;
+        this.totalIssues = response.length;
+        this.lastOrder = ord;
+        this.setUsers(response);
+      });
     },
     setUsers: function() {
       this.issuesList.forEach(issue => {
         this.users.forEach(us => {
           if (issue.assignee != null && issue.assignee == us.id) {
-            issue.assignee = us.username
+            issue.assignee = us.username;
           }
-        })
+        });
       });
+    },
+    isWatching: function(watchers) {
+      let find = false;
+      watchers.forEach(element => {
+        if (element == this.idUser) {
+          find = true;
+        }
+      });
+      return find;
+    },
+    watchUnwatchIssue: function(issueId, watchers) {
+      const body = {};
+      if (this.isWatching(watchers)) {
+        api.putUnwatchIssue(issueId, body, this.token).then(() => {
+          this.getIssues(this.lastOrder,"pills");
+        });
+      } else {
+        api.putWatchIssue(issueId, body, this.token).then(() => {
+          this.getIssues(this.lastOrder,"pills");
+        });
+      }
     }
   }
 };
@@ -336,7 +351,7 @@ a.nav-link {
   text-align: left;
 }
 .header-title {
-  width: 53%;
+  width: 48%;
 }
 .header-small {
   width: 5%;
@@ -389,5 +404,9 @@ a.nav-link {
   outline: none !important;
   -webkit-box-shadow: none;
   box-shadow: none;
+}
+.bton-watch {
+  background-color: white;
+  border: none;
 }
 </style>

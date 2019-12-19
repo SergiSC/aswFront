@@ -14,7 +14,7 @@
             </a>
         </div>
         <div class="mx-auto background-img logout-img">
-            <button class="bton-logout">
+            <button class="bton-logout" @click="logOut()">
                 <img class="img-navbar-logout" src="../../assets/logout.png" >
             </button>
         </div>
@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex' 
 export default {
     name: "NavBar",
     data: function() {
@@ -34,6 +35,13 @@ export default {
         this.actualPage = this.$route.name
     },
     methods: {
+        ...mapActions({
+            deleteAllData: 'deleteAllData'
+        }),
+        logOut: function(){
+            this.deleteAllData()
+            this.$router.push('login')
+        }
     }
 
 }

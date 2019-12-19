@@ -21,6 +21,7 @@ export default {
     postIssueDocument,
     deleteIssueDocument,
     getUsers,
+    getUserToken,
     getUserInfo
 }
 
@@ -275,6 +276,20 @@ async function getUsers(token) {
     let result = []
     await axios
         .get(baseUrl + 'users', {
+            headers: {
+                Authorization: 'Token ' + token
+            }
+        })
+        .then(response => {
+            result = response.data
+        })
+    return result
+}
+
+async function getUserToken(name, token) {
+    let result = []
+    await axios
+        .get(baseUrl + 'user?user=' + name, {
             headers: {
                 Authorization: 'Token ' + token
             }

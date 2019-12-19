@@ -2,7 +2,7 @@
     <div class="layout">
         <NavBar></NavBar>
         <b-jumbotron header="Welcome to Issue Tracker" class="jumbo-home">
-            <p>Your Username: Name</p>
+            <p>Your Username: {{userName}}</p>
             <b-button class="jumbo-button" href="/issues">Go to Issues List</b-button>
         </b-jumbotron>
         <p class="devteam-p">Developer team:</p>
@@ -60,9 +60,15 @@
 import NavBar from './verticalNavBar/NavBar.vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import {mapGetters} from "vuex"
 export default {
     name: 'Home',
-    components: {NavBar}
+    components: {NavBar},
+    computed: {
+        ...mapGetters({
+            userName: 'userName'
+        })
+    }
 }
 </script>
 

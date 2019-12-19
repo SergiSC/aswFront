@@ -9,9 +9,8 @@
 </template>
 
 <script>
-import api from "../services/apiService.js";
-import global from "../services/global.js";
-import GoogleSignInButton from 'vue-google-signin-button-directive'
+import GoogleSignInButton from 'vue-google-signin-button-directive';
+import { mapActions } from "vuex";
 export default {
   name: "LogIn",
   components: {},
@@ -20,33 +19,23 @@ export default {
   },
   data: function() {
     return {
-        clientId: '587974696907-guct3qjr505r1ok69vsukgttki815asq.apps.googleusercontent.com',
-        error: '',
-        token: '',
-        user: {},
-        users: {}
+        clientId: '587974696907-guct3qjr505r1ok69vsukgttki815asq.apps.googleusercontent.com'
     };
   },
   mounted: function() {
-    this.getusers()
+    this.setTotalUsers()
   },
   methods: {
+    ...mapActions({
+      setTotalUsers: 'setTotalUsers',
+      setInformationUser: 'setInformationUser'
+    }),
     OnGoogleAuthSuccess (idToken) {
-      this.token = idToken
-      api.getUserInfo(idToken).then(result => {
-        global.setName(result.data.email.split('@')[0])
-        this.user = global.getName()
-      })
-      // Receive the idToken and make your magic with the backend
+      this.setInformationUser(idToken)
+      this.$router.push('home')
     },
     OnGoogleAuthFail (error) {
       this.error = error
-    },
-    getusers: function() {
-      api.getUsers(global.data().token).then(result => {
-        
-        this.users = result
-      })
     }
   }
 };
