@@ -255,7 +255,7 @@
                 height="16px"
               />
             </b-button>
-            <a :href="'/file/' + attachment.id">{{attachment.document.split('/')[3]}}</a>
+            <a :href="'http://aswissuetracker.herokuapp.com/file/' + attachment.id">{{attachment.document.split('/')[3]}}</a>
             : {{attachment.description}}
           </b-row>
         </b-col>
