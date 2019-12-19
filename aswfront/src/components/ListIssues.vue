@@ -268,7 +268,7 @@ export default {
           }
         }
       }
-      api.getIssues(this.$route.name, ord, this.token).then(response => {
+      api.getIssues(this.$route.path.split('/')[2], ord, this.token).then(response => {
         this.issuesList = response;
         this.totalIssues = response.length;
         this.lastOrder = ord;
