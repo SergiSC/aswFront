@@ -21,7 +21,7 @@
       </div>
     </b-row>
     <b-row style="margin-left: 0; margin-top:10px;">
-      <h4>Issues ( - of {{totalIssues}})</h4>
+      <h4>Issues (1-{{totalIssues}} of {{totalIssues}})</h4>
       <table style="width:100%">
         <tr class="head-table">
           <th class="header-title itemh">

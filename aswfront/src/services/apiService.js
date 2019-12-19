@@ -239,14 +239,13 @@ async function getIssueDocuments(issueId, token) {
 }
 
 async function postIssueDocument(issueId, file, description, token) {
-    let documentFD = new FormData();
-    documentFD.append('document', file);
-    let textFD = new FormData();
-    textFD.set('description', description);
+    let formData = new FormData();
+    formData.append('document', file);
+    formData.set('description', description);
 
     let result = {}
     await axios
-        .post(baseUrl + 'issues/' + issueId + '/document', documentFD, textFD, {
+        .post(baseUrl + 'issues/' + issueId + '/document', formData, {
             headers: {
                 Authorization: 'Token ' + token
             }

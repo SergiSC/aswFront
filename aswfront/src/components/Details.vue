@@ -17,7 +17,34 @@
               <option :value="null" disabled>Workflow</option>
             </template>
           </b-form-select>
-          <b-button class="bton-issues mr-2">Attachment</b-button>
+          <b-button class="bton-issues mr-2" @click="showModal()">Attachment</b-button>
+          <b-modal ref="modal" hide-footer title="New attachment">
+            <div class="d-block text-center">
+              <h5 style="display:flex;">Attachment</h5>
+              <b-form-file
+                v-model="attatchmentFile"
+                :state="Boolean(file)"
+                placeholder="Choose a file or drop it here..."
+                drop-placeholder="Drop file here..."
+              ></b-form-file>
+              <h5 style="display:flex;">Description:</h5>
+              <b-form-textarea
+                class="mb-3"
+                id="textarea"
+                v-model="descriptionAttachment"
+                rows="3"
+                max-rows="6"
+              ></b-form-textarea>
+            </div>
+            <b-row>
+              <b-col>
+                <b-button class="button btn-create" @click="newAttachment()" block>Save</b-button>
+              </b-col>
+              <b-col>
+                <b-button @click="cancelEdit()" block>Cancel</b-button>
+              </b-col>
+            </b-row>
+          </b-modal>
           <b-button class="bton-issues mr-2" @click="deleteIssue()">Delete</b-button>
           <b-button class="bton-issues mr-2" :href="'/edit/' + issue.id">Edit Issue</b-button>
           <b-button class="bton-issues" href="/create">Create Issue</b-button>
@@ -37,7 +64,7 @@
       <b-col></b-col>
     </b-row>
     <b-row>
-      <p class="ml-3 my-1" style="color:var(--navbar-color);">{{issue.reporter}}</p>
+      <p class="ml-3 my-1" style="color:var(--navbar-color);">{{authorName}}</p>
       <p class="mx-1 my-1 mb-3">created an issue</p>
       <p class="my-1" style="font-weight: bold;">{{issueDate}}</p>
     </b-row>
@@ -62,18 +89,18 @@
     </b-row>
     <b-row class="mt-3 ml-3">
       <h4>Comments:</h4>
-        <div class="div-comment" v-for="comment in comments" :key="comment.id">
-          <Comment
-            @rerender="refreshComponent()"
-            :auto="comment.auto"
-            :text="comment.text"
-            :author="comment.author"
-            :created="comment.created_at"
-            :id="comment.id"
-          ></Comment>
+      <div class="div-comment" v-for="comment in comments" :key="comment.id">
+        <Comment
+          @rerender="refreshComponent()"
+          :auto="comment.auto"
+          :text="comment.text"
+          :author="comment.author"
+          :created="comment.created_at"
+          :id="comment.id"
+        ></Comment>
       </div>
     </b-row>
-    <!--dreta-->
+    <!--dreta arriba-->
     <b-container class="info-resum" fluid>
       <b-row>
         <b-col>
@@ -174,7 +201,18 @@
             <b-col cols="9" style="text-align: left;">
               <b-row class="mx-2">
                 <p class="vote-num mr-3">{{issue.votes.length}}</p>
-                <b-button size="sm" class="button-vote">Vote for this issue</b-button>
+                <b-button
+                  v-if="isWatching(issue.votes)"
+                  size="sm"
+                  class="button-vote"
+                  @click="voteUnvoteIssue(issue.id, issue.votes)"
+                >Remove vote</b-button>
+                <b-button
+                  v-else
+                  size="sm"
+                  class="button-vote"
+                  @click="voteUnvoteIssue(issue.id, issue.votes)"
+                >Vote for this issue</b-button>
               </b-row>
             </b-col>
           </b-row>
@@ -185,9 +223,40 @@
             <b-col cols="9" style="text-align: left;">
               <b-row class="mx-2">
                 <p class="vote-num mr-3">{{issue.watchers.length}}</p>
-                <b-button size="sm" class="button-vote">Watch this issue</b-button>
+                <b-button
+                  v-if="isWatching(issue.watchers)"
+                  size="sm"
+                  class="button-vote"
+                  @click="watchUnwatchIssue(issue.id, issue.watchers)"
+                >Stop watching</b-button>
+                <b-button
+                  v-else
+                  size="sm"
+                  class="button-vote"
+                  @click="watchUnwatchIssue(issue.id, issue.watchers)"
+                >Watch this issue</b-button>
               </b-row>
             </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
+    </b-container>
+    <!--dreta abajo-->
+    <b-container class="attachment" fluid>
+      <b-row>
+        <b-col>
+          <h4 class="title-resum mt-4">Attachments:</h4>
+          <b-row class="ml-4 my-2" v-for="attachment in attachments" :key="attachment.id">
+            <b-button @click="deleteAttachment(attachment.id)" class="bton-delete">
+              <img
+                src="https://image.flaticon.com/icons/png/512/1632/1632708.png"
+                alt
+                width="16px"
+                height="16px"
+              />
+            </b-button>
+            <a :href="'/file/' + attachment.id">{{attachment.document.split('/')[3]}}</a>
+            : {{attachment.description}}
           </b-row>
         </b-col>
       </b-row>
@@ -208,6 +277,7 @@ export default {
       issue: {},
       issueDate: "",
       comments: [],
+      attachments: [],
       selectedWorkflow: null,
       optionsWorkflow: [
         { value: "R", text: "Resolved" },
@@ -219,13 +289,16 @@ export default {
         { value: "C", text: "Closed" }
       ],
       textareaComment: "",
-      assigneeName: ""
+      assigneeName: "",
+      authorName: "",
+      descriptionAttachment: "",
+      attatchmentFile: File
     };
   },
   mounted: function() {
     this.getIssue(this.$route.params.id);
     this.getComments(this.$route.params.id);
-    this.setInformation()
+    this.getAttachments(this.$route.params.id);
   },
   computed: {
     ...mapGetters({
@@ -242,6 +315,14 @@ export default {
         this.issueDate = new Date(this.issue.created_at)
           .toString()
           .split(" GMT")[0];
+        this.users.forEach(element => {
+          if (element.id === response.assignee) {
+            this.assigneeName = element.username;
+          }
+          if (element.id === response.reporter) {
+            this.authorName = element.username;
+          }
+        });
       });
     },
     getComments: function(id) {
@@ -252,43 +333,105 @@ export default {
         });
       });
     },
-    setInformation: function() {
-      this.users.forEach(element => {
-        if(element.id === this.issue.assignee) {
-          this.assigneeName = element.username
-        }
+    getAttachments: function(id) {
+      api.getIssueDocuments(id, this.token).then(response => {
+        this.attachments = response;
       });
     },
     newComment: function() {
       const body = {
         text: this.textareaComment
       };
-      api
-        .postIssueComment(this.issue.id, body, this.token)
-        .then(() => {
-          this.getComments(this.issue.id);
-        });
+      api.postIssueComment(this.issue.id, body, this.token).then(() => {
+        this.getComments(this.issue.id);
+      });
     },
+    addAttachment: function() {},
     changeWorkflow: function() {
       const body = {
         status: this.selectedWorkflow
       };
-      api
-        .putIssueWorkflow(this.issue.id, body, this.token)
-        .then(() => {
-          this.getIssue(this.issue.id);
-          this.getComments(this.issue.id);
-        });
+      api.putIssueWorkflow(this.issue.id, body, this.token).then(() => {
+        this.getIssue(this.issue.id);
+        this.getComments(this.issue.id);
+      });
     },
     deleteIssue: function() {
+      api.deleteIssueById(this.issue.id, this.token).then(() => {
+        this.$router.push("/issues");
+      });
+    },
+    isWatching: function(watchers) {
+      let find = false;
+      watchers.forEach(element => {
+        if (element == this.idUser) {
+          find = true;
+        }
+      });
+      return find;
+    },
+    watchUnwatchIssue: function(issueId, watchers) {
+      const body = {};
+      if (this.isWatching(watchers)) {
+        api.putUnwatchIssue(issueId, body, this.token).then(() => {
+          this.getIssue(this.$route.params.id);
+        });
+      } else {
+        api.putWatchIssue(issueId, body, this.token).then(() => {
+          this.getIssue(this.$route.params.id);
+        });
+      }
+    },
+    hadVoted: function(votes) {
+      let find = false;
+      votes.forEach(element => {
+        if (element == this.idUser) {
+          find = true;
+        }
+      });
+      return find;
+    },
+    voteUnvoteIssue: function(issueId, votes) {
+      const body = {};
+      if (this.hadVoted(votes)) {
+        api.putUnvoteIssue(issueId, body, this.token).then(() => {
+          this.getIssue(this.$route.params.id);
+        });
+      } else {
+        api.putVoteIssue(issueId, body, this.token).then(() => {
+          this.getIssue(this.$route.params.id);
+        });
+      }
+    },
+    showModal: function() {
+      this.$refs["modal"].show();
+    },
+    cancelEdit: function() {
+      this.$refs["modal"].hide();
+    },
+    newAttachment: function() {
       api
-        .deleteIssueById(this.issue.id, this.token)
+        .postIssueDocument(
+          this.$route.params.id,
+          this.attatchmentFile,
+          this.descriptionAttachment,
+          this.token
+        )
         .then(() => {
-          this.$router.push("/issues")
+          this.refreshComponent();
+          this.$refs["modal"].hide();
+        });
+    },
+    deleteAttachment: function(attachmentId) {
+      api
+        .deleteIssueDocument(this.$route.params.id, attachmentId, this.token)
+        .then(() => {
+          this.refreshComponent();
         });
     },
     refreshComponent: function() {
-      this.getComments(this.issue.id)
+      this.getComments(this.$route.params.id);
+      this.getAttachments(this.$route.params.id);
     }
   }
 };
@@ -321,6 +464,15 @@ export default {
   margin-top: 2px;
   padding: 3px;
   font-size: 8pt;
+}
+.attachment {
+  border: 1px solid grey;
+  background-color: white;
+  position: fixed;
+  top: 500px;
+  right: 20px;
+  z-index: 999;
+  width: 40%;
 }
 .div-comment {
   width: 100%;
@@ -385,5 +537,11 @@ export default {
 }
 .bton-issues:focus {
   outline: none;
+}
+.bton-delete {
+  background-color: white !important;
+  border: none;
+  padding: 0;
+  margin-right: 5px;
 }
 </style>
